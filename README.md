@@ -140,6 +140,27 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 通过上面的分析，我们知道是通过给`RestTemplate`注入了一个`LoadBalancerInterceptor`拦截器，发送请求时被拦截器拦住走Ribbon的逻辑--选取对应服务的一个实例，再真正发送请求。大致流程如下：
 ![请求拦截过程](./img/请求拦截过程.jpg)
 
+## Spring Cloud LoadBalancer
+因为netfilx停更了，所以SpringCloud官方在[Spring Cloud Hoxton.M2](https://spring.io/blog/2019/08/19/spring-cloud-hoxton-m2-released?spm=a2c6h.12873639.article-detail.9.b01151baaJm0s6)
+版本提供了自己的客户端负载均衡器Loadbalancer用来替代Ribbon。
+但是目前是没有办法完全替代Ribbon。因为它目前的负载均衡算法还很少。
+![LoadBalancer代替Ribbon官方说明](./img/LoadBalancer代替Ribbon官方说明.png)
+
+但是从LoadBalancer的代码里能看到很多Ribbon类的身影，如下表：
+
+| Spring Cloud LoadBalancer | Netflix Ribbon |
+| ---- | ---- |
+| @LoadBalancerClients | @RibbonClients |
+| @LoadBalancerClient  | @RibbonClient |
+| LoadBalancerClientConfigurationRegistrar | RibbonClientConfigurationRegistrar |
+| LoadBalancerClientConfiguration | RibbonClientConfiguration |
+| ServiceInstance | Server |
+| List\<ServiceInstance\> | ServerList |
+| LoadBalancerClientFactory | SpringClientFactory |
+| LoadBalancerClientSpecification | RibbonClientSpecification |
+| ServiceInstanceChooser | IRule |
+
+
 ## 总结
 Ribbon是Spring Cloud框架中相当核心的模块，负责着服务负载调用，Ribbon也可以脱离SpringCloud单独使用。
 另外Ribbon是客户端的负载均衡框架，即每个客户端上，独立维护着自身的调用信息统计，相互隔离；也就是说：Ribbon的负载均衡表现在各个机器上变现并不完全一致
